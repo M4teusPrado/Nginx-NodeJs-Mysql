@@ -18,9 +18,14 @@ services:
     container_name: app
     networks:
       - node-network
+    command: sh -c "npm install && node index.js"
     volumes:
       - ./node:/usr/src/app
+      # - /usr/src/app/node_modules # volume anonimo (link simbolico)
     tty: true 
+    depends_on:
+      db:
+        condition: service_healthy
 
   db:
     image: mysql:5.7.16
@@ -30,11 +35,17 @@ services:
     tty: true
     volumes:
       - ./mysql:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     environment:
       - MYSQL_DATABASE=nodedb
       - MYSQL_ROOT_PASSWORD=root
     networks:
       - node-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
+      interval: 5s
+      timeout: 10s
+      retries: 3
 
   
   

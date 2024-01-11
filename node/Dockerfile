@@ -1,9 +1,13 @@
-FROM node:15
+FROM node:18-slim
+
+USER node
 
 WORKDIR /usr/src/app
 
-COPY . .
+# COPY ./package*.json .
+
+# RUN npm install
 
 EXPOSE 3000
 
-CMD [ "node", "index.js" ]
+# CMD [ "node", "index.js" ]
